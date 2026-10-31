@@ -7,29 +7,24 @@ The app talks to the same API as the website (`https://api.nearbnb.com/api/v1`, 
 Nothing here holds a secret: Stripe's publishable key comes from the API at payment time, and the Firebase file
 (`google-services.json`) is not secret but is kept out of git so each environment uses its own.
 
-> **Status:** first version, generated and not yet compiled or run on a device. Expect small compile fixes on the first
-> `flutter analyze`. Please report anything bigger with the template in `docs/BUG_REPORT.md`.
+> **Status:** builds and runs on Android (tested on a HONOR X6b, Android 16, Flutter 3.47.9): `flutter analyze` clean,
+> `flutter test` 22 passed. Report problems with the template in `docs/BUG_REPORT.md`.
 
 ## First-time setup
 
 Needs Flutter 3.27 or newer (`flutter --version`).
 
 ```bash
-# 1. Generate the Android and iOS project folders (this repo holds lib/, test/ and pubspec.yaml only).
-#    --project-name must stay nearbnb_app (the Dart imports use it).
-flutter create . --project-name nearbnb_app --org com.nearbnb --platforms android,ios
-
-# 2. Get the packages. If a version below is no longer available, `flutter pub upgrade --major-versions` and re-run tests.
 flutter pub get
-
-# 3. Check and test
 flutter analyze
 flutter test
 ```
 
-### Android settings the packages need
+Then put `google-services.json` (Firebase console, Android app `com.nearbnb.app`) in `android/app/`. It is not in git.
 
-`flutter create` makes defaults that need these changes:
+### Android settings (already done in this repo)
+
+For reference, these changes were made to the defaults `flutter create` produced. Keep them if the project is regenerated:
 
 1. **App id** `com.nearbnb.app` (cannot change after the first Play release). In `android/app/build.gradle(.kts)`:
    set `applicationId = "com.nearbnb.app"` and `namespace = "com.nearbnb.app"`, and move `MainActivity` to
@@ -95,7 +90,22 @@ website path; `appRouteFor()` opens the matching screen, or the website for host
 ## Before a Play Store release
 
 - Bump `version:` in `pubspec.yaml` (`0.1.0+1` -> `0.1.1+2`: the number after `+` must always go up).
-- Signing key: create an upload keystore, keep it and its passwords **out of git** (see `.gitignore`), and back it up.
+- Signing key (once): create an upload keystore and `android/key.properties`, both **out of git** (see `.gitignore`), and back them up.
+  Losing the upload key means asking Google to reset it.
+
+  ```bash
+  keytool -genkey -v -keystore %USERPROFILE%
+earbnb-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+  ```
+
+  `android/key.properties`:
+  ```
+  storePassword=<the keystore password>
+  keyPassword=<the key password>
+  keyAlias=upload
+  storeFile=C:/Users/<you>/nearbnb-upload.jks
+  ```
+- Build the bundle for Play: `flutter build appbundle` -> `build/app/outputs/bundle/release/app-release.aab`.
 - Play Console: privacy policy URL `https://nearbnb.com/legal/privacy`; account deletion URL `https://nearbnb.com/delete-account`
   (deleting is also in the app: Profile, Delete account).
 - Data safety form: the app collects name, email, phone, date of birth, profile links, booking and payment history

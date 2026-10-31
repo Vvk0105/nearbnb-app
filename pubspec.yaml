@@ -1,4 +1,4 @@
-name: nearbnb_app
+﻿name: nearbnb_app
 description: NearBnB guest app. Search, book by the hour, pay and manage trips.
 publish_to: "none"
 version: 0.1.0+1
@@ -22,7 +22,7 @@ dependencies:
   google_fonts: ^6.2.1
   cached_network_image: ^3.4.1
   shimmer: ^3.0.0
-  intl: ^0.19.0
+  intl: ^0.20.3
   # Payments, links, push
   flutter_stripe: ^11.2.0
   url_launcher: ^6.3.1

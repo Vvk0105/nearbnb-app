@@ -197,7 +197,8 @@ class _BookerState extends ConsumerState<_Booker> {
           )
         else
           DropdownButtonFormField<String>(
-            value: _effectiveTime,
+            key: ValueKey(_effectiveTime), // picking a suggested time from outside must show in the field
+            initialValue: _effectiveTime,
             isExpanded: true,
             decoration: const InputDecoration(labelText: 'Check-in time', prefixIcon: Icon(Icons.schedule_rounded)),
             items: [for (final t in _times) DropdownMenuItem(value: t, child: Text(timeLabel(t)))],

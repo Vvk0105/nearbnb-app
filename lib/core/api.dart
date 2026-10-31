@@ -44,7 +44,7 @@ class ApiException implements Exception {
 
 /// The one HTTP client of the app.
 ///  * Says it is the mobile app (X-Client: mobile), so sign-in returns tokens instead of browser cookies.
-///  * Adds "Authorization: Bearer <access>" to every request when signed in.
+///  * Adds `Authorization: Bearer <access>` to every request when signed in.
 ///  * When the access token has run out (401), swaps the refresh token for new ones once, then repeats the request.
 ///    If that fails too, the person is signed out (`onSignedOut`).
 class Api {

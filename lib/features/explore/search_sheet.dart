@@ -12,7 +12,7 @@ import '../../core/theme.dart';
 import 'search_query.dart';
 
 /// Full-screen search: where (with suggestions), check-in day and time, nights, guests.
-/// Returns the new SearchQuery, or a property id to open straight away ("property:<id>").
+/// Returns the new SearchQuery, or a property id to open straight away (`property:<id>`).
 Future<Object?> openSearchSheet(BuildContext context, SearchQuery current) => Navigator.of(context, rootNavigator: true).push<Object?>(
       MaterialPageRoute(fullscreenDialog: true, builder: (_) => SearchSheet(initial: current)),
     );
@@ -166,7 +166,8 @@ class _SearchSheetState extends ConsumerState<SearchSheet> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _times(meta).contains(_q.time) ? _q.time : null,
+                    key: ValueKey(_q.time), // a new value from outside rebuilds the field (initialValue is read once)
+                    initialValue: _times(meta).contains(_q.time) ? _q.time : null,
                     isExpanded: true,
                     decoration: const InputDecoration(prefixIcon: Icon(Icons.schedule_rounded)),
                     items: [for (final t in _times(meta)) DropdownMenuItem(value: t, child: Text(timeLabel(t)))],
@@ -258,7 +259,7 @@ class _Box extends StatelessWidget {
 }
 
 class CountStepper extends StatelessWidget {
-  const CountStepper({required this.label, this.hint, required this.value, required this.min, required this.max, required this.onChanged});
+  const CountStepper({super.key, required this.label, this.hint, required this.value, required this.min, required this.max, required this.onChanged});
   final String label;
   final String? hint;
   final int value;

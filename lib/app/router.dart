@@ -50,7 +50,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
-/// Notifications and pushes carry website links ("/account/trips/<id>/pay"). This turns them into app screens,
+/// Notifications and pushes carry website links (`/account/trips/<id>/pay`). This turns them into app screens,
 /// or returns null when the app has no such screen (host and admin pages): the caller then opens the website.
 String? appRouteFor(String webLink) {
   final path = Uri.tryParse(webLink)?.path ?? webLink;
