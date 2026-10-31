@@ -40,6 +40,12 @@ android {
         versionName = flutter.versionName
     }
 
+    lint {
+        // The release lint scan also scans Stripe's plugin, which needs a Google Wallet library that is not public
+        // (the unused "push provisioning" feature, see proguard-rules.pro). Lint is a code-quality report only.
+        checkReleaseBuilds = false
+    }
+
     signingConfigs {
         create("release") {
             if (keystoreProperties.isNotEmpty()) {
@@ -53,6 +59,7 @@ android {
 
     buildTypes {
         release {
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             // With android/key.properties: signed with the upload key (Play Store). Without it: debug key, for local testing only.
             signingConfig = if (keystoreProperties.isNotEmpty()) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
