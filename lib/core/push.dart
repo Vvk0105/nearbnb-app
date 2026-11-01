@@ -16,6 +16,9 @@ final firebaseReadyProvider = Provider<bool>((ref) => false);
 
 final pushProvider = Provider<PushService>((ref) => PushService(ref));
 
+/// What the phone says about notifications, shown in Profile so a problem is visible instead of silent.
+final pushStatusProvider = StateProvider<String>((ref) => 'Not set up yet. Sign in to turn them on.');
+
 /// Push notifications (Firebase Cloud Messaging).
 ///  * After sign-in: asks permission (Android 13+ and iOS ask the person), then gives the server this phone's token.
 ///  * Before sign-out: takes the token back, so the next person on this phone does not get the previous one's pushes.
@@ -53,13 +56,43 @@ class PushService {
     await _local.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(_channel);
   }
 
+  /// Called from Profile ("Push notifications") to try again and see the result.
+  Future<void> registerNow() => _register();
+
+  /// iPhone only: Apple hands the app its notification address a moment after permission is given. Asking for the
+  /// Firebase token before that fails ("apns-token-not-set"), so wait up to ~10 seconds for it.
+  Future<void> _waitForApnsToken() async {
+    for (var i = 0; i < 20; i++) {
+      if (await FirebaseMessaging.instance.getAPNSToken() != null) return;
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    }
+  }
+
   Future<void> _register() async {
-    if (!_ready) return;
-    final settings = await FirebaseMessaging.instance.requestPermission();
-    if (settings.authorizationStatus == AuthorizationStatus.denied) return;
-    final token = await FirebaseMessaging.instance.getToken();
-    if (token == null || ref.read(authProvider).valueOrNull == null) return;
-    await ref.read(apiProvider).post('/me/notifications/devices', body: {'token': token, 'platform': Platform.isIOS ? 'ios' : 'android'});
+    final status = ref.read(pushStatusProvider.notifier);
+    if (!_ready) {
+      status.state = 'Unavailable: Firebase did not start on this phone.';
+      return;
+    }
+    try {
+      final settings = await FirebaseMessaging.instance.requestPermission();
+      if (settings.authorizationStatus == AuthorizationStatus.denied) {
+        status.state = 'Off. Allow notifications for NearBnB in the phone settings, then tap here.';
+        return;
+      }
+      if (Platform.isIOS) await _waitForApnsToken();
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token == null) {
+        status.state = 'Unavailable: this phone gave no notification address. Tap to retry.';
+        return;
+      }
+      if (ref.read(authProvider).valueOrNull == null) return;
+      await ref.read(apiProvider).post('/me/notifications/devices', body: {'token': token, 'platform': Platform.isIOS ? 'ios' : 'android'});
+      status.state = 'On. You will get updates about your bookings.';
+    } catch (e) {
+      final why = e.toString().replaceAll(RegExp(r'\s+'), ' ');
+      status.state = 'Unavailable: ${why.length > 140 ? '${why.substring(0, 140)}...' : why}';
+    }
   }
 
   Future<void> _unregister() async {

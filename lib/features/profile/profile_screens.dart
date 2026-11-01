@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/api.dart';
 import '../../core/config.dart';
 import '../../core/models.dart';
+import '../../core/push.dart';
 import '../../core/providers.dart';
 import '../../core/theme.dart';
 import '../../widgets/common.dart';
@@ -57,6 +58,10 @@ class ProfileScreen extends ConsumerWidget {
           _tile(Icons.badge_outlined, 'Personal details', 'Name, phone, date of birth, profile links', () => context.push('/profile/edit')),
           _tile(Icons.lock_outline_rounded, 'Change password', null, () => context.push('/profile/password')),
           _tile(Icons.luggage_outlined, 'My trips', null, () => context.go('/trips')),
+          _tile(Icons.notifications_active_outlined, 'Push notifications', ref.watch(pushStatusProvider), () async {
+            await ref.read(pushProvider).registerNow();
+            if (context.mounted) showMessage(context, ref.read(pushStatusProvider));
+          }),
         ]),
         _LegalLinks(),
         _group([
