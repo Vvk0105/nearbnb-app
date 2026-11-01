@@ -181,7 +181,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       body: Form(
         key: _form,
         child: ListView(padding: const EdgeInsets.all(20), children: [
-          const Text('Hosts see your first name, your age and your profile links when you request a stay. '
+          const Text('Hosts see your name, your age and your profile links when you request a stay. '
               'Your phone and email are shared only once a booking is confirmed.', style: TextStyle(color: Brand.slate600)),
           const SizedBox(height: 20),
           FormMessage(_error),

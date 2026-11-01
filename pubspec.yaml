@@ -34,8 +34,19 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
+
+# The app icon (run `dart run flutter_launcher_icons` after changing the pictures in assets/branding/).
+# The adaptive icon is the foreground on a teal background; phones crop it to a circle or rounded square.
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: false
+  image_path: "assets/branding/icon.png"
+  min_sdk_android: 23
+  adaptive_icon_background: "#0D9488"
+  adaptive_icon_foreground: "assets/branding/icon-foreground.png"
