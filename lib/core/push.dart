@@ -45,6 +45,7 @@ class PushService {
     FirebaseMessaging.instance.getInitialMessage().then((m) {
       if (m != null) open(m.data['link'] as String?);
     });
+    // ignore: deprecated_member_use  (still works in firebase_messaging 17; its replacement is onRegistered)
     FirebaseMessaging.instance.onTokenRefresh.listen((_) => _register());
   }
 
@@ -81,6 +82,7 @@ class PushService {
         return;
       }
       if (Platform.isIOS) await _waitForApnsToken();
+      // ignore: deprecated_member_use  (still works in firebase_messaging 17; its replacement is register())
       final token = await FirebaseMessaging.instance.getToken();
       if (token == null) {
         status.state = 'Unavailable: this phone gave no notification address. Tap to retry.';
@@ -97,6 +99,7 @@ class PushService {
 
   Future<void> _unregister() async {
     if (!_ready) return;
+    // ignore: deprecated_member_use
     final token = await FirebaseMessaging.instance.getToken();
     if (token == null) return;
     await ref.read(apiProvider).post('/me/notifications/devices/remove', body: {'token': token});
