@@ -8,10 +8,7 @@ workflows:
       app_store_connect: codemagic        # the name given to the App Store Connect API key in Codemagic (Teams > Integrations)
     environment:
       groups:
-        - firebase_ios                    # IOS_FIREBASE_API_KEY, IOS_FIREBASE_APP_ID, IOS_FIREBASE_SENDER_ID, IOS_FIREBASE_PROJECT_ID
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.nearbnb.app
+        - firebase_ios                    # IOS_FIREBASE_API_KEY, IOS_FIREBASE_APP_ID, IOS_FIREBASE_SENDER_ID, IOS_FIREBASE_PROJECT_ID, CERTIFICATE_PRIVATE_KEY
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -28,6 +25,13 @@ workflows:
         script: |
           cd ios
           pod install
+      - name: Prepare the keychain
+        script: keychain initialize
+      - name: Create or fetch the Apple signing files (certificate and App Store profile) for com.nearbnb.app
+        script: |
+          app-store-connect fetch-signing-files "com.nearbnb.app"             --type IOS_APP_STORE             --create
+      - name: Add the certificate to the keychain
+        script: keychain add-certificates
       - name: Set up code signing on the Xcode project
         script: xcode-project use-profiles
       - name: Build the iPhone app

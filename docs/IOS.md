@@ -34,7 +34,10 @@ Keep all `.p8` files and IDs private. Never put them in git or in chat.
 2. **Teams -> Integrations -> App Store Connect -> Connect.** Name it exactly `codemagic`, enter the Issuer ID and Key ID, upload the `.p8` from step A4.
 3. In the app's **Environment variables**, create a group named `firebase_ios` with four variables, each marked **Secure**:
    `IOS_FIREBASE_API_KEY`, `IOS_FIREBASE_APP_ID`, `IOS_FIREBASE_SENDER_ID`, `IOS_FIREBASE_PROJECT_ID` (the four values from step B3).
-4. Code signing needs no manual step: with the integration above, Codemagic creates the distribution certificate and provisioning profile through the API.
+4. Code signing: Codemagic creates the distribution certificate and App Store profile itself through the API, but it needs a private key to make the certificate.
+   Make one once in Git Bash: `ssh-keygen -t rsa -b 2048 -m PEM -f ~/codemagic_ios_distribution_key -q -N ""`.
+   Open the file `codemagic_ios_distribution_key` (no extension, in your home folder) in Notepad, copy **everything** including the `-----BEGIN` and `-----END` lines, and add it as a **Secure** variable named
+   `CERTIFICATE_PRIVATE_KEY` in the `firebase_ios` group. Keep the file safe: it is needed for every later build, and never put it in git.
 
 ## D. Build and test
 
